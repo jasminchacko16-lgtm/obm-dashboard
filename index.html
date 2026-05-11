@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alkalma OBM | SPACE Client Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#23445A;--navy-deep:#1A3347;--teal:#85C6C2;--teal-light:#9DD4D1;
+  --teal-mist:rgba(133,198,194,0.1);--teal-glow:rgba(133,198,194,0.2);
+  --sand:#F5F7F7;--sand-warm:#EBF0EF;--white:#FFFFFF;
+  --text-primary:#23445A;--text-secondary:#4A7080;--text-muted:#7A9BAA;
+  --success:#5BAA8A;--warning:#D4943A;--danger:#C45B5B;
+  --scope-s:#85C6C2;--scope-c:#D4943A;--scope-o:#5B7EC4;
+  --scope-p:#9B6BB5;--scope-e:#5BAA8A;
+  --radius:10px;--radius-lg:16px;
+  --shadow-sm:0 1px 3px rgba(27,58,75,0.06);
+  --shadow-md:0 4px 16px rgba(27,58,75,0.08);
+  --shadow-lg:0 8px 32px rgba(27,58,75,0.12);
+  --font-display:'DM Serif Display',Georgia,serif;
+  --font-body:'Outfit',system-ui,sans-serif;
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--sand);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
+
+/* Sidebar */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:var(--navy-deep);color:white;z-index:100;display:flex;flex-direction:column;transition:transform .3s ease}
+.sidebar-brand{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sidebar-brand h1{font-family:var(--font-display);font-size:1.5rem;font-weight:400;letter-spacing:0.02em;margin-bottom:2px}
+.sidebar-brand span{font-size:.72rem;color:var(--teal-light);letter-spacing:.15em;text-transform:uppercase;font-weight:500}
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-section{margin-bottom:20px}
+.nav-section-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.18em;color:rgba(255,255,255,0.3);padding:8px 12px 6px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:400;color:rgba(255,255,255,0.55);transition:all .2s;margin-bottom:2px}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.04)}
+.nav-item.active{color:white;background:rgba(91,181,181,0.15)}
+.nav-item.active::before{content:'';position:absolute;left:0;width:3px;height:24px;background:var(--teal-light);border-radius:0 3px 3px 0}
+.nav-item svg{width:18px;height:18px;opacity:.7;flex-shrink:0}
+.nav-item.active svg{opacity:1}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);font-size:.75rem;color:rgba(255,255,255,0.25)}
+
+/* Main */
+.main{margin-left:260px;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(247,244,240,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(27,58,75,0.06);padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
+.topbar-title{font-family:var(--font-display);font-size:1.4rem;color:var(--navy)}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;font-family:var(--font-body);font-size:.82rem;font-weight:500;border:none;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--teal);color:white}
+.btn-primary:hover{background:var(--navy);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid rgba(27,58,75,0.12)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.btn-sm{padding:6px 12px;font-size:.78rem}
+.btn-icon{width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:8px;background:white;border:1px solid rgba(27,58,75,0.08);cursor:pointer;transition:all .2s}
+.btn-icon:hover{border-color:var(--teal);color:var(--teal)}
+
+.content{padding:32px 40px 60px}
+
+/* Views */
+.view{display:none}
+.view.active{display:block}
+
+/* Action Items */
+.actions-bar{background:white;border-radius:var(--radius-lg);padding:20px 24px;box-shadow:var(--shadow-sm);margin-bottom:28px}
+.actions-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.actions-header h3{font-family:var(--font-display);font-size:1.05rem}
+.actions-header .actions-count{font-size:.75rem;color:var(--text-muted);font-weight:500}
+.action-list{display:flex;flex-direction:column;gap:6px}
+.action-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;cursor:pointer;transition:all .15s;background:var(--sand)}
+.action-item:hover{background:var(--teal-mist);transform:translateX(2px)}
+.action-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.action-icon.session{background:rgba(133,198,194,0.15);color:var(--teal)}
+.action-icon.data{background:rgba(212,148,58,0.12);color:var(--warning)}
+.action-icon.review{background:rgba(91,170,138,0.12);color:var(--success)}
+.action-icon.risk{background:rgba(196,91,91,0.1);color:var(--danger)}
+.action-icon svg{width:16px;height:16px}
+.action-text{flex:1;min-width:0}
+.action-text .action-title{font-size:.85rem;font-weight:500;color:var(--text-primary)}
+.action-text .action-detail{font-size:.75rem;color:var(--text-muted);margin-top:1px}
+.action-due{font-size:.72rem;color:var(--text-muted);font-weight:500;white-space:nowrap}
+.action-due.urgent{color:var(--danger);font-weight:600}
+.action-due.soon{color:var(--warning);font-weight:600}
+.actions-empty{text-align:center;padding:16px;color:var(--text-muted);font-size:.88rem}
+
+/* SCOPE Pipeline */
+.pipeline{background:white;border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow-sm);margin-bottom:28px}
+.pipeline-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.pipeline-header h2{font-family:var(--font-display);font-size:1.2rem}
+.scope-track{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:6px}
+.scope-phase{text-align:center;padding:14px 8px;border-radius:var(--radius);position:relative;cursor:default}
+.scope-phase .phase-letter{font-family:var(--font-display);font-size:1.6rem;display:block;margin-bottom:2px}
+.scope-phase .phase-name{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600;opacity:.8}
+.scope-phase .phase-count{font-size:1.8rem;font-family:var(--font-display);margin-top:8px}
+.scope-phase:nth-child(1){background:rgba(61,139,139,0.1);color:var(--scope-s)}
+.scope-phase:nth-child(2){background:rgba(209,148,58,0.1);color:var(--scope-c)}
+.scope-phase:nth-child(3){background:rgba(91,126,196,0.1);color:var(--scope-o)}
+.scope-phase:nth-child(4){background:rgba(155,107,181,0.1);color:var(--scope-p)}
+.scope-phase:nth-child(5){background:rgba(58,158,111,0.1);color:var(--scope-e)}
+.scope-connector{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:20px}
+.scope-connector div{height:3px;border-radius:2px;opacity:.3}
+.scope-connector div:nth-child(1){background:var(--scope-s)}
+.scope-connector div:nth-child(2){background:var(--scope-c)}
+.scope-connector div:nth-child(3){background:var(--scope-o)}
+.scope-connector div:nth-child(4){background:var(--scope-p)}
+.scope-connector div:nth-child(5){background:var(--scope-e)}
+
+/* Client List */
+.client-list{background:white;border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+.list-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(27,58,75,0.06)}
+.list-header h2{font-family:var(--font-display);font-size:1.2rem}
+.search-box{position:relative}
+.search-box input{padding:8px 12px 8px 34px;border:1px solid rgba(27,58,75,0.1);border-radius:8px;font-family:var(--font-body);font-size:.82rem;width:240px;background:var(--sand);transition:all .2s}
+.search-box input:focus{outline:none;border-color:var(--teal);background:white;box-shadow:0 0 0 3px var(--teal-glow)}
+.search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-muted)}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;padding:12px 16px;font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);font-weight:600;background:rgba(27,58,75,0.02);border-bottom:1px solid rgba(27,58,75,0.06)}
+tbody tr{cursor:pointer;transition:background .15s}
+tbody tr:hover{background:var(--teal-mist)}
+tbody td{padding:14px 16px;border-bottom:1px solid rgba(27,58,75,0.04);font-size:.88rem}
+.client-name{font-weight:600;color:var(--navy)}
+.client-org{font-size:.78rem;color:var(--text-secondary)}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600;letter-spacing:.04em}
+.phase-badge.scope{background:rgba(61,139,139,0.12);color:var(--scope-s)}
+.phase-badge.pinpoint{background:rgba(209,148,58,0.12);color:var(--scope-c)}
+.phase-badge.assess{background:rgba(91,126,196,0.12);color:var(--scope-o)}
+.phase-badge.change{background:rgba(155,107,181,0.12);color:var(--scope-p)}
+.phase-badge.embed{background:rgba(58,158,111,0.12);color:var(--scope-e)}
+.phase-badge.completed{background:rgba(58,158,111,0.08);color:var(--success)}
+.phase-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.risk-indicator{width:8px;height:8px;border-radius:50%;display:inline-block}
+.risk-low{background:var(--success)}
+.risk-med{background:var(--warning)}
+.risk-high{background:var(--danger)}
+.progress-mini{width:80px;height:4px;background:rgba(27,58,75,0.08);border-radius:2px;overflow:hidden}
+.progress-mini-fill{height:100%;border-radius:2px;transition:width .5s ease}
+
+/* Client Detail View */
+.detail-back{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--text-secondary);cursor:pointer;margin-bottom:20px;font-weight:500;transition:color .2s}
+.detail-back:hover{color:var(--teal)}
+.detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+.detail-title h2{font-family:var(--font-display);font-size:1.6rem;margin-bottom:4px}
+.detail-title p{color:var(--text-secondary);font-size:.88rem}
+.detail-meta{display:flex;gap:20px;margin-top:10px}
+.detail-meta-item{font-size:.78rem;color:var(--text-muted)}
+.detail-meta-item strong{color:var(--text-primary);font-weight:600}
+
+/* SCOPE Progress Bar */
+.scope-progress{background:white;border-radius:var(--radius-lg);padding:24px 28px;box-shadow:var(--shadow-sm);margin-bottom:24px}
+.scope-steps{display:flex;align-items:center;gap:0;position:relative;margin-top:16px}
+.scope-step{flex:1;text-align:center;position:relative}
+.scope-step-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-family:var(--font-display);font-size:1rem;font-weight:400;border:2px solid rgba(27,58,75,0.12);background:white;color:var(--text-muted);position:relative;z-index:2;transition:all .3s}
+.scope-step.completed .scope-step-dot{background:var(--success);border-color:var(--success);color:white}
+.scope-step.active .scope-step-dot{background:var(--teal);border-color:var(--teal);color:white;box-shadow:0 0 0 4px var(--teal-glow)}
+.scope-step-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)}
+.scope-step.completed .scope-step-label{color:var(--success)}
+.scope-step.active .scope-step-label{color:var(--teal)}
+.scope-step-line{position:absolute;top:18px;left:50%;right:-50%;height:2px;background:rgba(27,58,75,0.08);z-index:1}
+.scope-step.completed .scope-step-line{background:var(--success)}
+.scope-step:last-child .scope-step-line{display:none}
+.scope-step-dates{font-size:.68rem;color:var(--text-muted);margin-top:2px}
+
+/* Data Grid */
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.data-card{background:white;border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm)}
+.data-card h3{font-family:var(--font-display);font-size:1.05rem;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.data-card h3 .card-action{font-family:var(--font-body);font-size:.75rem;color:var(--teal);cursor:pointer;font-weight:500}
+
+/* Behavior Data Chart */
+.chart-container{position:relative;height:220px;margin-top:8px}
+canvas{width:100%!important;height:100%!important}
+.chart-legend{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
+.chart-legend-item{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-secondary)}
+.chart-legend-dot{width:10px;height:10px;border-radius:2px}
+
+/* Session Log */
+.session-entry{padding:14px 0;border-bottom:1px solid rgba(27,58,75,0.05)}
+.session-entry:last-child{border-bottom:none}
+.session-date{font-size:.72rem;color:var(--text-muted);font-weight:600;letter-spacing:.05em;margin-bottom:4px}
+.session-title{font-weight:600;font-size:.88rem;margin-bottom:3px}
+.session-notes{font-size:.82rem;color:var(--text-secondary);line-height:1.5}
+.session-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.session-tag{font-size:.68rem;padding:2px 8px;border-radius:4px;background:var(--teal-mist);color:var(--teal);font-weight:500}
+
+/* Measurement Table */
+.measure-table{width:100%}
+.measure-table th{text-align:left;padding:8px 0;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:600;border-bottom:1px solid rgba(27,58,75,0.08)}
+.measure-table td{padding:10px 0;font-size:.84rem;border-bottom:1px solid rgba(27,58,75,0.04)}
+.measure-table .trend-up{color:var(--success)}
+.measure-table .trend-down{color:var(--danger)}
+.measure-table .trend-flat{color:var(--text-muted)}
+
+/* ABC Log */
+.abc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.abc-col{background:var(--sand);border-radius:var(--radius);padding:14px}
+.abc-col h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:10px;font-weight:600}
+.abc-item{font-size:.82rem;padding:8px 10px;background:white;border-radius:6px;margin-bottom:6px;border-left:3px solid transparent;line-height:1.4}
+.abc-col:nth-child(1) .abc-item{border-left-color:var(--scope-c)}
+.abc-col:nth-child(2) .abc-item{border-left-color:var(--scope-o)}
+.abc-col:nth-child(3) .abc-item{border-left-color:var(--scope-p)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,37,48,0.5);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:var(--radius-lg);width:560px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{padding:24px 28px 0;display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{font-family:var(--font-display);font-size:1.2rem}
+.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:var(--sand);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--text-secondary);transition:all .2s}
+.modal-close:hover{background:rgba(196,91,91,0.1);color:var(--danger)}
+.modal-body{padding:20px 28px 28px}
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:6px}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border:1px solid rgba(27,58,75,0.12);border-radius:8px;font-family:var(--font-body);font-size:.88rem;transition:all .2s;background:white}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
+.form-textarea{min-height:80px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:8px}
+
+/* Data Collection View */
+.collection-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.collection-card{background:white;border-radius:var(--radius-lg);padding:20px 22px;box-shadow:var(--shadow-sm);border-left:4px solid transparent;cursor:pointer;transition:all .2s}
+.collection-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.collection-card.behavior{border-left-color:var(--teal)}
+.collection-card.session{border-left-color:var(--scope-c)}
+.collection-card.business{border-left-color:var(--scope-o)}
+.collection-card h3{font-size:.92rem;font-weight:600;margin-bottom:6px}
+.collection-card p{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+
+/* Full-width card */
+.card-full{grid-column:1/-1}
+
+/* Behavior Selector Tabs */
+.behavior-selector{background:white;border-radius:var(--radius-lg);padding:20px 24px;box-shadow:var(--shadow-sm);margin-bottom:24px}
+.behavior-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.behavior-tab{padding:8px 16px;border-radius:8px;font-size:.82rem;font-weight:500;cursor:pointer;border:1px solid rgba(27,58,75,0.1);background:white;color:var(--text-secondary);transition:all .2s;font-family:var(--font-body)}
+.behavior-tab:hover{border-color:var(--teal);color:var(--teal)}
+.behavior-tab.active{background:var(--teal);color:white;border-color:var(--teal)}
+.behavior-tab .tab-method{font-size:.68rem;opacity:.7;margin-left:6px;font-weight:400}
+
+/* Client View Mode */
+.client-view-active .internal-only{display:none!important}
+.client-view-active .detail-back{display:none!important}
+.client-view-banner{display:none;background:var(--navy);color:white;padding:10px 24px;border-radius:var(--radius);margin-bottom:20px;font-size:.82rem;align-items:center;justify-content:space-between}
+.client-view-active .client-view-banner{display:flex}
+.client-view-active #btn-client-view{background:var(--navy);color:white;border-color:var(--navy)}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeUp .45s ease both}
+.animate-in:nth-child(2){animation-delay:.06s}
+.animate-in:nth-child(3){animation-delay:.12s}
+.animate-in:nth-child(4){animation-delay:.18s}
+
+/* Print styles */
+@media print{.sidebar,.topbar{display:none}.main{margin-left:0}.content{padding:20px}}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="alkalma-logo.png" alt="Alkalma" style="height:48px;display:block;margin-bottom:8px;border-radius:6px">
+    <span>OBM Tracker</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Overview</div>
+      <div class="nav-item active" onclick="showView('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showView('clients')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Data</div>
+      <div class="nav-item" onclick="showView('data-collection')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Data Collection
+      </div>
+      <div class="nav-item" onclick="showView('behavior-data')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Behavior Data
+      </div>
+      <div class="nav-item" onclick="showView('sessions-log')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Session Log
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Reports</div>
+      <div class="nav-item" onclick="showView('reports')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Reports
+      </div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    Alkalma Wellbeing<br>United for Health and Well-Being
+  </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="exportData()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+      <button class="btn btn-primary" onclick="openModal('add-client')">+ New Client</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Dashboard View -->
+    <div class="view active" id="view-dashboard">
+      <div class="actions-bar animate-in">
+        <div class="actions-header">
+          <h3>Needs Your Attention</h3>
+          <span class="actions-count" id="actions-count"></span>
+        </div>
+        <div class="action-list" id="action-list"></div>
+      </div>
+
+      <div class="pipeline animate-in">
+        <div class="pipeline-header">
+          <h2>SPACE Pipeline</h2>
+          <span style="font-size:.78rem;color:var(--text-muted)">Client distribution by phase</span>
+        </div>
+        <div class="scope-track">
+          <div class="scope-phase"><span class="phase-letter">S</span><span class="phase-name">Scope</span><div class="phase-count" id="pipe-s">1</div></div>
+          <div class="scope-phase"><span class="phase-letter">P</span><span class="phase-name">Pinpoint</span><div class="phase-count" id="pipe-p">1</div></div>
+          <div class="scope-phase"><span class="phase-letter">A</span><span class="phase-name">Assess</span><div class="phase-count" id="pipe-a">0</div></div>
+          <div class="scope-phase"><span class="phase-letter">C</span><span class="phase-name">Change</span><div class="phase-count" id="pipe-c">1</div></div>
+          <div class="scope-phase"><span class="phase-letter">E</span><span class="phase-name">Embed</span><div class="phase-count" id="pipe-e">1</div></div>
+        </div>
+        <div class="scope-connector"><div></div><div></div><div></div><div></div><div></div></div>
+      </div>
+
+      <div class="client-list animate-in">
+        <div class="list-header">
+          <h2>Active Engagements</h2>
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search clients..." oninput="filterClients(this.value)">
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Client / Organization</th><th>Sector</th><th>SPACE Phase</th><th>Target Behavior</th><th>Progress</th><th>Risk</th><th>Next Session</th>
+          </tr></thead>
+          <tbody id="client-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Client Detail View -->
+    <div class="view" id="view-client-detail">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div class="detail-back" onclick="showView('dashboard')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>
+          Back to Dashboard
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-ghost btn-sm" id="btn-client-view" onclick="toggleClientView()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Client View
+          </button>
+        </div>
+      </div>
+      <div class="detail-header">
+        <div class="detail-title">
+          <h2 id="detail-name"></h2>
+          <p id="detail-org"></p>
+          <div class="detail-meta">
+            <div class="detail-meta-item">Sector: <strong id="detail-sector"></strong></div>
+            <div class="detail-meta-item">Started: <strong id="detail-start"></strong></div>
+            <div class="detail-meta-item">OBM Area: <strong id="detail-area"></strong></div>
+            <div class="detail-meta-item internal-only">Sponsor: <strong id="detail-sponsor"></strong></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px" class="internal-only">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('add-session')">+ Log Session</button>
+          <button class="btn btn-ghost btn-sm" onclick="openModal('add-behavior')">+ Add Behavior</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('add-behavior-data')">+ Record Data</button>
+        </div>
+      </div>
+
+      <!-- SPACE Progress -->
+      <div class="scope-progress">
+        <h3 style="font-family:var(--font-display);font-size:1.05rem">SPACE Progress</h3>
+        <div class="scope-steps" id="scope-steps"></div>
+      </div>
+
+      <!-- Behavior Selector -->
+      <div class="behavior-selector" id="behavior-selector" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h3 style="font-family:var(--font-display);font-size:1.05rem">Target Behaviors</h3>
+        </div>
+        <div class="behavior-tabs" id="behavior-tabs"></div>
+      </div>
+
+      <!-- Data Grid -->
+      <div class="data-grid">
+        <!-- Behavior Data Chart (full width) -->
+        <div class="data-card card-full">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <h3 id="chart-behavior-title">Behavior Data</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="card-action internal-only" onclick="openModal('add-behavior-data')">+ Record</span>
+            </div>
+          </div>
+          <div id="chart-behavior-definition" style="font-size:.82rem;color:var(--text-secondary);margin-bottom:12px"></div>
+          <div class="chart-container" style="height:260px"><canvas id="behavior-chart"></canvas></div>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:rgba(61,139,139,0.3)"></div>Baseline</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--teal)"></div>Intervention</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--success)"></div>Target</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--scope-c);border-radius:50%"></div>Collected by you</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--scope-o);border-radius:0"></div>Collected by client</div>
+          </div>
+        </div>
+
+        <!-- Measurement Summary -->
+        <div class="data-card">
+          <h3>Measurement Summary</h3>
+          <table class="measure-table" id="measure-table"></table>
+        </div>
+
+        <!-- ABC Analysis (internal only) -->
+        <div class="data-card internal-only">
+          <h3>Functional Assessment (ABC)</h3>
+          <div class="abc-grid" id="abc-display">
+            <div class="abc-col">
+              <h4>Antecedent</h4>
+              <div class="abc-item" id="abc-a"></div>
+            </div>
+            <div class="abc-col">
+              <h4>Behavior</h4>
+              <div class="abc-item" id="abc-b"></div>
+            </div>
+            <div class="abc-col">
+              <h4>Consequence</h4>
+              <div class="abc-item" id="abc-c"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Impact -->
+        <div class="data-card">
+          <h3>Business Impact <span class="card-action internal-only" onclick="openModal('add-business')">+ Record</span></h3>
+          <div id="business-metrics-detail"></div>
+        </div>
+
+        <!-- Recent Sessions -->
+        <div class="data-card internal-only">
+          <h3>Session Log <span class="card-action" onclick="openModal('add-session')">+ Log</span></h3>
+          <div id="session-log-detail"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clients View -->
+    <div class="view" id="view-clients">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div>
+          <h2 style="font-family:var(--font-display);font-size:1.4rem;margin-bottom:4px">Clients</h2>
+          <p style="color:var(--text-secondary);font-size:.88rem">All active and completed OBM engagements.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add-client')">+ New Client</button>
+      </div>
+      <div class="client-list">
+        <div class="list-header">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search clients..." oninput="filterClientsView(this.value)">
+            </div>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Client / Organization</th><th>Sector</th><th>OBM Area</th><th>SPACE Phase</th><th>Sponsor</th><th>Started</th><th>Progress</th>
+          </tr></thead>
+          <tbody id="clients-view-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Data Collection View -->
+    <div class="view" id="view-data-collection">
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;margin-bottom:8px">Data Collection</h2>
+      <p style="color:var(--text-secondary);margin-bottom:24px;font-size:.88rem">Record behavior observations, session notes, and business metrics for active clients.</p>
+      <div class="collection-grid">
+        <div class="collection-card behavior" onclick="openModal('add-behavior-data')">
+          <h3>Behavior Observation</h3>
+          <p>Record frequency, duration, or permanent product data for a target behavior. Core OBM measurement.</p>
+        </div>
+        <div class="collection-card session" onclick="openModal('add-session')">
+          <h3>Session Note</h3>
+          <p>Log coaching session details: behaviors reviewed, data trends, intervention adjustments, next steps.</p>
+        </div>
+        <div class="collection-card business" onclick="openModal('add-business')">
+          <h3>Business Metric</h3>
+          <p>Record retention rates, compliance scores, project completion, or other organizational outcomes.</p>
+        </div>
+      </div>
+      <div class="data-card" style="background:white;border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm)">
+        <h3 style="font-family:var(--font-display);font-size:1.05rem;margin-bottom:16px">Measurement Methods Reference</h3>
+        <table class="measure-table">
+          <thead><tr><th>Method</th><th>Use When</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Frequency</strong></td><td>Counting discrete instances of behavior</td><td>Number of feedback emails sent per week</td></tr>
+            <tr><td><strong>Duration</strong></td><td>Measuring how long a behavior lasts</td><td>Time spent in 1:1 check-ins with direct reports</td></tr>
+            <tr><td><strong>Permanent Product</strong></td><td>Reviewing tangible outcomes</td><td>Completed feedback forms, submitted reports</td></tr>
+            <tr><td><strong>Interval Recording</strong></td><td>Sampling behavior during observation</td><td>% of meeting intervals with active participation</td></tr>
+            <tr><td><strong>Latency</strong></td><td>Time between prompt and behavior onset</td><td>Hours between deliverable receipt and written feedback</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Behavior Data View -->
+    <div class="view" id="view-behavior-data">
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;margin-bottom:20px">Behavior Data Overview</h2>
+      <div class="data-grid" id="all-behavior-charts"></div>
+    </div>
+
+    <!-- Sessions Log View -->
+    <div class="view" id="view-sessions-log">
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;margin-bottom:20px">All Sessions</h2>
+      <div class="data-card" style="background:white;border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm)">
+        <div id="all-sessions-list"></div>
+      </div>
+    </div>
+
+    <!-- Reports View -->
+    <div class="view" id="view-reports">
+      <h2 style="font-family:var(--font-display);font-size:1.4rem;margin-bottom:8px">Reports</h2>
+      <p style="color:var(--text-secondary);margin-bottom:24px;font-size:.88rem">Generate progress reports for clients and stakeholders.</p>
+      <div class="collection-grid">
+        <div class="collection-card behavior" onclick="generateReport('progress')">
+          <h3>Progress Report</h3>
+          <p>Baseline vs. intervention data with visual graphs. Standard deliverable at each SPACE phase gate.</p>
+        </div>
+        <div class="collection-card session" onclick="generateReport('phase')">
+          <h3>Phase Summary</h3>
+          <p>End-of-phase report with findings, recommendations, and next-phase plan. For sponsor review.</p>
+        </div>
+        <div class="collection-card business" onclick="generateReport('roi')">
+          <h3>Business Impact</h3>
+          <p>Behavior change linked to business metrics. ROI evidence for HR and leadership stakeholders.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Client Modal -->
+<div class="modal-overlay" id="modal-add-client">
+  <div class="modal">
+    <div class="modal-header"><h2>New Client</h2><button class="modal-close" onclick="closeModal('add-client')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Client Name</label><input class="form-input" id="f-client-name" placeholder="e.g., Ahmed Al Rashid"></div>
+        <div class="form-group"><label class="form-label">Organization</label><input class="form-input" id="f-client-org" placeholder="e.g., Baker McKenzie"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Sector</label>
+          <select class="form-select" id="f-client-sector">
+            <option value="">Select sector</option><option value="Law">Law</option><option value="Finance">Finance</option><option value="Engineering">Engineering</option><option value="Technology">Technology</option><option value="Healthcare">Healthcare</option><option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">OBM Area</label>
+          <select class="form-select" id="f-client-area">
+            <option value="">Select area</option><option value="Performance Management">Performance Management</option><option value="Behavioral Systems Analysis">Behavioral Systems Analysis</option><option value="Behavior-Based Safety">Behavior-Based Safety</option><option value="Leadership & Culture">Leadership & Culture</option><option value="Health & Wellness">Health & Wellness</option><option value="Training & Development">Training & Development</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Referral Source</label>
+          <select class="form-select" id="f-client-referral">
+            <option value="">Select source</option><option value="HR/People Team">HR / People Team</option><option value="L&D">L&D / OD</option><option value="Senior Leadership">Senior Leadership</option><option value="Self-referral">Self-referral</option><option value="Alkalma Clinical">Alkalma Clinical Referral</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Start Date</label><input class="form-input" id="f-client-start" type="date"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Presenting Concern</label><textarea class="form-textarea" id="f-client-concern" placeholder="Brief description of the business opportunity or presenting concern..."></textarea></div>
+      <div class="form-group"><label class="form-label">Sponsor / Key Stakeholder</label><input class="form-input" id="f-client-sponsor" placeholder="Name and role of project sponsor"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('add-client')">Cancel</button>
+        <button class="btn btn-primary" onclick="addClient()">Add Client</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Session Modal -->
+<div class="modal-overlay" id="modal-add-session">
+  <div class="modal">
+    <div class="modal-header"><h2>Log Session</h2><button class="modal-close" onclick="closeModal('add-session')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Client</label>
+          <select class="form-select" id="f-session-client"></select>
+        </div>
+        <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="f-session-date" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Duration (min)</label><input class="form-input" id="f-session-duration" type="number" value="60"></div>
+        <div class="form-group">
+          <label class="form-label">Session Type</label>
+          <select class="form-select" id="f-session-type">
+            <option value="Coaching">Coaching Session</option><option value="Assessment">Assessment / Observation</option><option value="Stakeholder">Stakeholder Meeting</option><option value="Data Review">Data Review</option><option value="Handover">Handover / Embed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Behaviors Reviewed</label><input class="form-input" id="f-session-behaviors" placeholder="Target behaviors discussed this session"></div>
+      <div class="form-group"><label class="form-label">Data Summary</label><textarea class="form-textarea" id="f-session-data" placeholder="Key data points collected or reviewed since last session..."></textarea></div>
+      <div class="form-group"><label class="form-label">Intervention Adjustments</label><textarea class="form-textarea" id="f-session-adjustments" placeholder="Changes made to antecedent or consequence interventions..."></textarea></div>
+      <div class="form-group"><label class="form-label">Next Steps</label><textarea class="form-textarea" id="f-session-next" placeholder="Agreed actions before next session..."></textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('add-session')">Cancel</button>
+        <button class="btn btn-primary" onclick="addSession()">Log Session</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Behavior Definition Modal -->
+<div class="modal-overlay" id="modal-add-behavior">
+  <div class="modal">
+    <div class="modal-header"><h2>Add Target Behavior</h2><button class="modal-close" onclick="closeModal('add-behavior')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Client</label>
+        <select class="form-select" id="f-beh-client"></select>
+      </div>
+      <div class="form-group"><label class="form-label">Behavior Name (short label)</label><input class="form-input" id="f-beh-name" placeholder="e.g., Written feedback within 48 hrs"></div>
+      <div class="form-group"><label class="form-label">Operational Definition</label><textarea class="form-textarea" id="f-beh-definition" placeholder="Specific, observable, measurable description of the behavior..."></textarea></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Measurement Method</label>
+          <select class="form-select" id="f-beh-method">
+            <option value="Frequency">Frequency Count</option><option value="Duration">Duration (minutes)</option><option value="Permanent Product">Permanent Product</option><option value="Interval">Interval Recording (%)</option><option value="Latency">Latency (hours)</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Target / Criterion</label><input class="form-input" id="f-beh-target" type="number" placeholder="Goal level"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Direction</label>
+        <select class="form-select" id="f-beh-direction">
+          <option value="increase">Increase (higher is better)</option>
+          <option value="decrease">Decrease (lower is better)</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('add-behavior')">Cancel</button>
+        <button class="btn btn-primary" onclick="addBehaviorDefinition()">Add Behavior</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Behavior Data Modal -->
+<div class="modal-overlay" id="modal-add-behavior-data">
+  <div class="modal">
+    <div class="modal-header"><h2>Record Behavior Data</h2><button class="modal-close" onclick="closeModal('add-behavior-data')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Client</label>
+          <select class="form-select" id="f-data-client" onchange="updateBehaviorSelect()"></select>
+        </div>
+        <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="f-data-date" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Target Behavior</label>
+          <select class="form-select" id="f-data-behavior-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Collected By</label>
+          <select class="form-select" id="f-data-collector">
+            <option value="Practitioner">Practitioner (you)</option>
+            <option value="Client">Client (self-report)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Measurement Method</label>
+          <select class="form-select" id="f-data-method" disabled></select>
+        </div>
+        <div class="form-group"><label class="form-label">Value</label><input class="form-input" id="f-data-value" type="number" placeholder="Enter measured value"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Phase</label>
+          <select class="form-select" id="f-data-phase">
+            <option value="Baseline">Baseline</option><option value="Intervention">Intervention</option><option value="Post-Intervention">Post-Intervention</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Target Value</label><input class="form-input" id="f-data-target" type="number" disabled></div>
+      </div>
+      <div class="form-group"><label class="form-label">Context / Notes</label><textarea class="form-textarea" id="f-data-notes" placeholder="Environmental conditions, any relevant context..."></textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('add-behavior-data')">Cancel</button>
+        <button class="btn btn-primary" onclick="addBehaviorData()">Record Data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Business Metric Modal -->
+<div class="modal-overlay" id="modal-add-business">
+  <div class="modal">
+    <div class="modal-header"><h2>Record Business Metric</h2><button class="modal-close" onclick="closeModal('add-business')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Client</label>
+          <select class="form-select" id="f-biz-client"></select>
+        </div>
+        <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="f-biz-date" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Metric Type</label>
+          <select class="form-select" id="f-biz-type">
+            <option value="Retention">Employee Retention Rate</option><option value="Project Completion">Project Completion Rate</option><option value="Meeting Attendance">Meeting Attendance</option><option value="Client Satisfaction">Client Satisfaction Score</option><option value="Performance Review">Performance Review Rating</option><option value="Absenteeism">Absenteeism Rate</option><option value="Safety Incidents">Safety Incident Rate</option><option value="Compliance">Compliance Audit Score</option><option value="Turnover">Turnover Rate</option><option value="Custom">Custom Metric</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Value</label><input class="form-input" id="f-biz-value" type="number" placeholder="Enter value"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="f-biz-notes" placeholder="Source, context, comparison period..."></textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('add-business')">Cancel</button>
+        <button class="btn btn-primary" onclick="addBusinessMetric()">Record Metric</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA STORE ============
+const STORAGE_KEY = 'alkalma_obm_data';
+
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) return JSON.parse(saved);
+  return {
+    clients: [
+      {id:1,name:"Nadia Al Maktoum",org:"Hadef & Partners",sector:"Law",area:"Leadership & Culture",phase:"change",phaseIndex:3,startDate:"2026-02-10",sponsor:"Sarah Thompson, HR Director",concern:"High associate turnover linked to partner feedback practices",referral:"HR/People Team",
+        targetBehavior:"Provides written feedback to associates within 48 hrs of deliverable",
+        abc:{a:"Associate submits completed deliverable to partner",b:"Partner provides no written feedback; verbal feedback only when errors found",c:"Associates report feeling undervalued; 3 resigned in 6 months"},
+        scopeDates:{scope:"2026-02-10",pinpoint:"2026-02-24",assess:"2026-03-10",change:"2026-04-07",embed:null},
+        risk:"low",progress:65,nextSession:"2026-05-12"},
+      {id:2,name:"Omar Khalifa",org:"AECOM Middle East",sector:"Engineering",area:"Behavior-Based Safety",phase:"embed",phaseIndex:4,startDate:"2026-01-06",sponsor:"James Mitchell, HSE Manager",concern:"Safety incident rate above industry benchmark on Dubai Metro extension project",referral:"Senior Leadership",
+        targetBehavior:"Completes pre-task safety briefing with crew before each work shift",
+        abc:{a:"Shift start with crew assembled at staging area",b:"Supervisor skips pre-task briefing or conducts it informally without checklist",c:"No follow-up from management; incidents investigated only after injury"},
+        scopeDates:{scope:"2026-01-06",pinpoint:"2026-01-20",assess:"2026-02-03",change:"2026-03-03",embed:"2026-05-05"},
+        risk:"low",progress:90,nextSession:"2026-05-14"},
+      {id:3,name:"Layla Hassan",org:"Emirates NBD",sector:"Finance",area:"Health & Wellness",phase:"pinpoint",phaseIndex:1,startDate:"2026-04-14",sponsor:"Fatima Al Zaabi, Head of People & Culture",concern:"Wealth management team reporting burnout; after-hours work normalized by leadership",referral:"HR/People Team",
+        targetBehavior:"Manager sends no work communications after 7 PM on weekdays",
+        abc:{a:"Client request arrives after business hours",b:"Manager forwards to team with response expectation same evening",c:"Team responds to maintain standing; no boundary enforcement from leadership"},
+        scopeDates:{scope:"2026-04-14",pinpoint:"2026-04-28",assess:null,change:null,embed:null},
+        risk:"med",progress:25,nextSession:"2026-05-11"},
+      {id:4,name:"Ravi Menon",org:"Clifford Chance (Dubai)",sector:"Law",area:"Performance Management",phase:"scope",phaseIndex:0,startDate:"2026-05-05",sponsor:"Pending - initial meeting scheduled",concern:"Delegation bottleneck at senior associate level; partners retaining work that should be delegated",referral:"L&D",
+        targetBehavior:"To be pinpointed during assessment",
+        abc:{a:"To be assessed",b:"To be assessed",c:"To be assessed"},
+        scopeDates:{scope:"2026-05-05",pinpoint:null,assess:null,change:null,embed:null},
+        risk:"low",progress:5,nextSession:"2026-05-13"}
+    ],
+    behaviors: [
+      {id:'b1',clientId:1,name:"Written feedback within 48 hrs",definition:"Partner provides written feedback to associate within 48 hours of receiving a completed deliverable. Includes email, document comments, or structured feedback form.",method:"Permanent Product",target:5,direction:"increase"},
+      {id:'b2',clientId:1,name:"Structured check-in with associate",definition:"Partner conducts a scheduled 1:1 check-in with each direct report lasting at least 15 minutes, covering current workload and development.",method:"Frequency",target:3,direction:"increase"},
+      {id:'b3',clientId:2,name:"Pre-task safety briefing completed",definition:"Supervisor conducts a formal pre-task briefing using the standardized checklist with full crew before each shift begins.",method:"Frequency",target:5,direction:"increase"},
+      {id:'b4',clientId:2,name:"PPE compliance observed",definition:"All crew members observed wearing required PPE during site walkthrough.",method:"Interval",target:100,direction:"increase"},
+      {id:'b5',clientId:3,name:"After-hours communications sent",definition:"Manager sends work-related messages (email, WhatsApp, Teams) to team members after 7:00 PM on weekdays.",method:"Frequency",target:0,direction:"decrease"},
+      {id:'b6',clientId:3,name:"Boundary-setting response to client",definition:"Manager responds to after-hours client request by scheduling for next business day rather than forwarding to team immediately.",method:"Permanent Product",target:5,direction:"increase"}
+    ],
+    behaviorData: [
+      {clientId:1,behaviorId:'b1',date:"2026-03-10",value:1,phase:"Baseline",collector:"Practitioner"},
+      {clientId:1,behaviorId:'b1',date:"2026-03-17",value:2,phase:"Baseline",collector:"Practitioner"},
+      {clientId:1,behaviorId:'b1',date:"2026-03-24",value:1,phase:"Baseline",collector:"Practitioner"},
+      {clientId:1,behaviorId:'b1',date:"2026-03-31",value:2,phase:"Baseline",collector:"Practitioner"},
+      {clientId:1,behaviorId:'b1',date:"2026-04-07",value:3,phase:"Intervention",collector:"Practitioner"},
+      {clientId:1,behaviorId:'b1',date:"2026-04-14",value:3,phase:"Intervention",collector:"Client"},
+      {clientId:1,behaviorId:'b1',date:"2026-04-21",value:4,phase:"Intervention",collector:"Client"},
+      {clientId:1,behaviorId:'b1',date:"2026-04-28",value:4,phase:"Intervention",collector:"Practitioner"},
+      {clientId:1,behaviorId:'b1',date:"2026-05-05",value:5,phase:"Intervention",collector:"Client"},
+      {clientId:1,behaviorId:'b2',date:"2026-04-07",value:0,phase:"Baseline",collector:"Practitioner"},
+      {clientId:1,behaviorId:'b2',date:"2026-04-14",value:1,phase:"Baseline",collector:"Practitioner"},
+      {clientId:1,behaviorId:'b2',date:"2026-04-21",value:0,phase:"Baseline",collector:"Client"},
+      {clientId:1,behaviorId:'b2',date:"2026-04-28",value:2,phase:"Intervention",collector:"Client"},
+      {clientId:1,behaviorId:'b2',date:"2026-05-05",value:2,phase:"Intervention",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b3',date:"2026-02-03",value:2,phase:"Baseline",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b3',date:"2026-02-10",value:2,phase:"Baseline",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b3',date:"2026-02-17",value:3,phase:"Baseline",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b3',date:"2026-02-24",value:2,phase:"Baseline",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b3',date:"2026-03-03",value:3,phase:"Intervention",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b3',date:"2026-03-10",value:4,phase:"Intervention",collector:"Client"},
+      {clientId:2,behaviorId:'b3',date:"2026-03-17",value:4,phase:"Intervention",collector:"Client"},
+      {clientId:2,behaviorId:'b3',date:"2026-03-24",value:5,phase:"Intervention",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b3',date:"2026-03-31",value:5,phase:"Intervention",collector:"Client"},
+      {clientId:2,behaviorId:'b3',date:"2026-04-07",value:5,phase:"Intervention",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b3',date:"2026-04-14",value:5,phase:"Intervention",collector:"Client"},
+      {clientId:2,behaviorId:'b3',date:"2026-04-21",value:5,phase:"Intervention",collector:"Client"},
+      {clientId:2,behaviorId:'b4',date:"2026-03-03",value:60,phase:"Baseline",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b4',date:"2026-03-10",value:65,phase:"Baseline",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b4',date:"2026-03-17",value:75,phase:"Intervention",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b4',date:"2026-03-24",value:85,phase:"Intervention",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b4',date:"2026-03-31",value:90,phase:"Intervention",collector:"Client"},
+      {clientId:2,behaviorId:'b4',date:"2026-04-07",value:95,phase:"Intervention",collector:"Practitioner"},
+      {clientId:2,behaviorId:'b4',date:"2026-04-14",value:95,phase:"Intervention",collector:"Client"},
+      {clientId:3,behaviorId:'b5',date:"2026-04-28",value:12,phase:"Baseline",collector:"Practitioner"},
+      {clientId:3,behaviorId:'b5',date:"2026-05-05",value:10,phase:"Baseline",collector:"Client"}
+    ],
+    sessions: [
+      {clientId:1,date:"2026-05-05",duration:60,type:"Coaching",behaviors:"Written feedback frequency",data:"5 written feedbacks recorded this week - target met for first time",adjustments:"Added peer reinforcement component; associate team lead now also providing acknowledgment",next:"Monitor maintenance; begin planning Embed phase if data holds for 2 more weeks",tags:["feedback","reinforcement"]},
+      {clientId:1,date:"2026-04-28",duration:60,type:"Data Review",behaviors:"Written feedback frequency",data:"4 feedbacks this week, up from 3. Upward trend continues.",adjustments:"None - current intervention package holding",next:"Continue monitoring; discuss embed timeline with HR sponsor",tags:["data review"]},
+      {clientId:2,date:"2026-05-05",duration:45,type:"Stakeholder",behaviors:"Safety briefing completion",data:"100% completion for 4 consecutive weeks across all 3 crews",adjustments:"Transitioning to self-monitoring; supervisor checklist moved to crew lead",next:"Final sponsor meeting to present outcome data and sustainability plan",tags:["embed","stakeholder"]},
+      {clientId:3,date:"2026-05-05",duration:90,type:"Assessment",behaviors:"After-hours communications",data:"Baseline week 2: 10 after-hours messages (down from 12 but still far above target of 0)",adjustments:"N/A - still in Pinpoint/Assess phases",next:"Complete PDC interviews with 3 team members; schedule observation of team meeting",tags:["assessment","PDC"]},
+      {clientId:4,date:"2026-05-05",duration:60,type:"Stakeholder",behaviors:"To be determined",data:"Initial scoping meeting completed with L&D lead",adjustments:"N/A",next:"Schedule meeting with managing partner (sponsor TBC); review delegation audit data from L&D",tags:["scoping","stakeholder"]}
+    ],
+    businessMetrics: [
+      {clientId:1,date:"2026-04-30",type:"Turnover",value:0,notes:"Zero associate resignations since intervention began (vs. 3 in prior 6 months)"},
+      {clientId:2,date:"2026-04-30",type:"Safety Incidents",value:0,notes:"Zero recordable incidents in April (vs. 2/month average prior to engagement)"},
+      {clientId:2,date:"2026-03-31",type:"Safety Incidents",value:1,notes:"One minor incident (first aid only) - still below 2/month baseline"}
+    ]
+  };
+}
+
+function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+let data = loadData();
+let currentClientId = null;
+let currentBehaviorId = null;
+let isClientView = false;
+
+// ============ NAVIGATION ============
+function showView(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const titles = {dashboard:'Dashboard',clients:'Clients','data-collection':'Data Collection','behavior-data':'Behavior Data','sessions-log':'Session Log',reports:'Reports','client-detail':'Client Detail'};
+  document.getElementById('topbar-title').textContent = titles[viewId] || 'Dashboard';
+
+  if (viewId === 'client-detail') {
+    document.getElementById('view-client-detail').classList.add('active');
+    renderClientDetail();
+    return;
+  }
+
+  document.getElementById('view-' + viewId).classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  const navMap = {dashboard:0,clients:1,'data-collection':2,'behavior-data':3,'sessions-log':4,reports:5};
+  if (navMap[viewId] !== undefined) navItems[navMap[viewId]].classList.add('active');
+
+  if (viewId === 'dashboard') renderDashboard();
+  if (viewId === 'clients') renderClientsView();
+  if (viewId === 'behavior-data') renderAllBehaviorData();
+  if (viewId === 'sessions-log') renderAllSessions();
+}
+
+// ============ RENDER DASHBOARD ============
+function renderDashboard() {
+  const phases = {scope:0,pinpoint:0,assess:0,change:0,embed:0};
+  data.clients.forEach(c => { if(phases[c.phase] !== undefined) phases[c.phase]++; });
+  document.getElementById('pipe-s').textContent = phases.scope;
+  document.getElementById('pipe-p').textContent = phases.pinpoint;
+  document.getElementById('pipe-a').textContent = phases.assess;
+  document.getElementById('pipe-c').textContent = phases.change;
+  document.getElementById('pipe-e').textContent = phases.embed;
+
+  renderActionItems();
+  renderClientTable(data.clients);
+}
+
+function renderActionItems() {
+  const actions = [];
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+
+  data.clients.forEach(c => {
+    // Upcoming sessions
+    if (c.nextSession) {
+      const sessionDate = new Date(c.nextSession);
+      const daysUntil = Math.round((sessionDate - today) / (1000*60*60*24));
+      if (daysUntil <= 7) {
+        let urgency = 'soon';
+        let dueText = formatDate(c.nextSession);
+        if (daysUntil < 0) { urgency = 'urgent'; dueText = 'Overdue'; }
+        else if (daysUntil === 0) { urgency = 'urgent'; dueText = 'Today'; }
+        else if (daysUntil === 1) { urgency = 'urgent'; dueText = 'Tomorrow'; }
+        actions.push({
+          type: 'session', urgency, priority: daysUntil < 0 ? -1 : daysUntil,
+          clientId: c.id, title: `Session with ${c.name}`,
+          detail: `${c.org} · ${c.phase.charAt(0).toUpperCase()+c.phase.slice(1)} phase`,
+          due: dueText
+        });
+      }
+    }
+
+    // Baseline data needed — fewer than 3 baseline points
+    const clientBehaviors = (data.behaviors || []).filter(b => b.clientId === c.id);
+    clientBehaviors.forEach(beh => {
+      const behData = data.behaviorData.filter(d => d.behaviorId === beh.id);
+      const baselineCount = behData.filter(d => d.phase === 'Baseline').length;
+      if (baselineCount < 3 && (c.phase === 'pinpoint' || c.phase === 'assess')) {
+        actions.push({
+          type: 'data', urgency: baselineCount === 0 ? 'urgent' : 'soon', priority: 5 - baselineCount,
+          clientId: c.id, title: `Baseline data needed: ${beh.name}`,
+          detail: `${c.name} · ${baselineCount}/3 minimum data points`,
+          due: `${baselineCount} collected`
+        });
+      }
+    });
+
+    // No data in 2+ weeks
+    const allClientData = data.behaviorData.filter(d => d.clientId === c.id);
+    if (allClientData.length > 0 && (c.phase === 'change' || c.phase === 'assess')) {
+      const lastDataDate = new Date(allClientData.sort((a,b) => b.date.localeCompare(a.date))[0].date);
+      const daysSinceData = Math.round((today - lastDataDate) / (1000*60*60*24));
+      if (daysSinceData >= 10) {
+        actions.push({
+          type: 'data', urgency: daysSinceData >= 14 ? 'urgent' : 'soon', priority: 8,
+          clientId: c.id, title: `No recent data for ${c.name}`,
+          detail: `Last data point: ${formatDate(lastDataDate.toISOString().split('T')[0])} (${daysSinceData} days ago)`,
+          due: `${daysSinceData}d ago`
+        });
+      }
+    }
+
+    // Ready for phase transition
+    if (c.phase === 'embed') {
+      const behData = data.behaviorData.filter(d => d.clientId === c.id && d.phase === 'Intervention');
+      if (behData.length >= 4) {
+        const recent = behData.slice(-4);
+        const clientBehs = (data.behaviors || []).filter(b => b.clientId === c.id);
+        const allAtTarget = clientBehs.every(beh => {
+          const bd = data.behaviorData.filter(d => d.behaviorId === beh.id);
+          if (bd.length === 0) return false;
+          const last = bd[bd.length - 1].value;
+          return beh.direction === 'decrease' ? last <= beh.target : last >= beh.target;
+        });
+        if (allAtTarget) {
+          actions.push({
+            type: 'review', urgency: '', priority: 10,
+            clientId: c.id, title: `${c.name} — ready for completion review`,
+            detail: `${c.org} · All target behaviors at criterion`,
+            due: 'Review'
+          });
+        }
+      }
+    }
+
+    // Risk flag
+    if (c.risk === 'med' || c.risk === 'high') {
+      actions.push({
+        type: 'risk', urgency: c.risk === 'high' ? 'urgent' : 'soon', priority: c.risk === 'high' ? 0 : 6,
+        clientId: c.id, title: `${c.name} flagged ${c.risk === 'high' ? 'high' : 'medium'} risk`,
+        detail: `${c.org} · ${c.phase.charAt(0).toUpperCase()+c.phase.slice(1)} phase`,
+        due: c.risk === 'high' ? 'Urgent' : 'Monitor'
+      });
+    }
+  });
+
+  // Sort by priority
+  actions.sort((a, b) => a.priority - b.priority);
+
+  const iconSvgs = {
+    session: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    data: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+    review: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    risk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+  };
+
+  const list = document.getElementById('action-list');
+  document.getElementById('actions-count').textContent = actions.length + ' item' + (actions.length !== 1 ? 's' : '');
+
+  if (actions.length === 0) {
+    list.innerHTML = '<div class="actions-empty">All clear. No items need attention right now.</div>';
+    return;
+  }
+
+  list.innerHTML = actions.map(a => `
+    <div class="action-item" onclick="openClient(${a.clientId})">
+      <div class="action-icon ${a.type}">${iconSvgs[a.type]}</div>
+      <div class="action-text">
+        <div class="action-title">${a.title}</div>
+        <div class="action-detail">${a.detail}</div>
+      </div>
+      <div class="action-due ${a.urgency}">${a.due}</div>
+    </div>
+  `).join('');
+}
+
+function renderClientTable(clients) {
+  const tbody = document.getElementById('client-table-body');
+  tbody.innerHTML = clients.map(c => {
+    const phaseLabel = c.phase.charAt(0).toUpperCase() + c.phase.slice(1);
+    const riskClass = c.risk === 'low' ? 'risk-low' : c.risk === 'med' ? 'risk-med' : 'risk-high';
+    const progressColor = c.progress > 70 ? 'var(--success)' : c.progress > 40 ? 'var(--teal)' : 'var(--warning)';
+    return `<tr onclick="openClient(${c.id})">
+      <td><div class="client-name">${c.name}</div><div class="client-org">${c.org}</div></td>
+      <td>${c.sector}</td>
+      <td><span class="phase-badge ${c.phase}"><span class="phase-dot"></span>${phaseLabel}</span></td>
+      <td style="font-size:.82rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.targetBehavior}</td>
+      <td><div class="progress-mini"><div class="progress-mini-fill" style="width:${c.progress}%;background:${progressColor}"></div></div></td>
+      <td><span class="risk-indicator ${riskClass}"></span></td>
+      <td style="font-size:.82rem;color:var(--text-secondary)">${formatDate(c.nextSession)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterClients(q) {
+  const filtered = data.clients.filter(c =>
+    (c.name + c.org + c.sector + c.phase).toLowerCase().includes(q.toLowerCase())
+  );
+  renderClientTable(filtered);
+}
+
+// ============ CLIENTS VIEW ============
+function renderClientsView(clients) {
+  const list = clients || data.clients;
+  const tbody = document.getElementById('clients-view-table');
+  tbody.innerHTML = list.map(c => {
+    const phaseLabel = c.phase.charAt(0).toUpperCase() + c.phase.slice(1);
+    const progressColor = c.progress > 70 ? 'var(--success)' : c.progress > 40 ? 'var(--teal)' : 'var(--warning)';
+    return `<tr onclick="openClient(${c.id})" style="cursor:pointer">
+      <td><div class="client-name">${c.name}</div><div class="client-org">${c.org}</div></td>
+      <td>${c.sector}</td>
+      <td style="font-size:.82rem">${c.area}</td>
+      <td><span class="phase-badge ${c.phase}"><span class="phase-dot"></span>${phaseLabel}</span></td>
+      <td style="font-size:.82rem;color:var(--text-secondary)">${c.sponsor}</td>
+      <td style="font-size:.82rem">${formatDate(c.startDate)}</td>
+      <td><div class="progress-mini"><div class="progress-mini-fill" style="width:${c.progress}%;background:${progressColor}"></div></div></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterClientsView(q) {
+  const filtered = data.clients.filter(c =>
+    (c.name + c.org + c.sector + c.area + c.phase + c.sponsor).toLowerCase().includes(q.toLowerCase())
+  );
+  renderClientsView(filtered);
+}
+
+// ============ CLIENT DETAIL ============
+function openClient(id) {
+  currentClientId = id;
+  showView('client-detail');
+}
+
+function renderClientDetail() {
+  const c = data.clients.find(cl => cl.id === currentClientId);
+  if (!c) return;
+
+  document.getElementById('detail-name').textContent = c.name;
+  document.getElementById('detail-org').textContent = c.org;
+  document.getElementById('detail-sector').textContent = c.sector;
+  document.getElementById('detail-start').textContent = formatDate(c.startDate);
+  document.getElementById('detail-area').textContent = c.area;
+  document.getElementById('detail-sponsor').textContent = c.sponsor;
+
+  // SPACE steps
+  const phases = ['scope','pinpoint','assess','change','embed'];
+  const phaseNames = ['Scope','Pinpoint','Assess','Change','Embed'];
+  const stepsHtml = phases.map((p, i) => {
+    let status = '';
+    if (i < c.phaseIndex) status = 'completed';
+    else if (i === c.phaseIndex) status = 'active';
+    const dateStr = c.scopeDates[p] ? formatDate(c.scopeDates[p]) : '--';
+    return `<div class="scope-step ${status}">
+      <div class="scope-step-line"></div>
+      <div class="scope-step-dot">${phaseNames[i][0]}</div>
+      <div class="scope-step-label">${phaseNames[i]}</div>
+      <div class="scope-step-dates">${dateStr}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('scope-steps').innerHTML = stepsHtml;
+
+  // Behavior tabs
+  const clientBehaviors = (data.behaviors || []).filter(b => b.clientId === c.id);
+  const selector = document.getElementById('behavior-selector');
+  if (clientBehaviors.length > 0) {
+    selector.style.display = 'block';
+    if (!currentBehaviorId || !clientBehaviors.find(b => b.id === currentBehaviorId)) {
+      currentBehaviorId = clientBehaviors[0].id;
+    }
+    document.getElementById('behavior-tabs').innerHTML = clientBehaviors.map(b =>
+      `<button class="behavior-tab ${b.id === currentBehaviorId ? 'active' : ''}" onclick="selectBehavior('${b.id}')">
+        ${b.name}<span class="tab-method">${b.method}</span>
+      </button>`
+    ).join('');
+  } else {
+    selector.style.display = 'none';
+    currentBehaviorId = null;
+  }
+
+  // Render selected behavior data
+  renderSelectedBehavior();
+
+  // ABC
+  document.getElementById('abc-a').textContent = c.abc.a;
+  document.getElementById('abc-b').textContent = c.abc.b;
+  document.getElementById('abc-c').textContent = c.abc.c;
+
+  // Business metrics
+  renderBusinessMetrics(c);
+
+  // Sessions
+  const clientSessions = data.sessions.filter(s => s.clientId === c.id).sort((a,b) => b.date.localeCompare(a.date));
+  document.getElementById('session-log-detail').innerHTML = clientSessions.slice(0, 5).map(s => `
+    <div class="session-entry">
+      <div class="session-date">${formatDate(s.date)} | ${s.duration} min | ${s.type}</div>
+      <div class="session-title">${s.behaviors}</div>
+      <div class="session-notes">${s.data}</div>
+      <div class="session-tags">${s.tags.map(t => `<span class="session-tag">${t}</span>`).join('')}</div>
+    </div>
+  `).join('') || '<p style="color:var(--text-muted);font-size:.85rem">No sessions logged yet.</p>';
+}
+
+function selectBehavior(behaviorId) {
+  currentBehaviorId = behaviorId;
+  document.querySelectorAll('.behavior-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.behavior-tab[onclick="selectBehavior('${behaviorId}')"]`).classList.add('active');
+  renderSelectedBehavior();
+}
+
+function renderSelectedBehavior() {
+  const beh = (data.behaviors || []).find(b => b.id === currentBehaviorId);
+  if (!beh) {
+    document.getElementById('chart-behavior-title').textContent = 'Behavior Data';
+    document.getElementById('chart-behavior-definition').textContent = '';
+    document.getElementById('measure-table').innerHTML = '<tr><td style="color:var(--text-muted);padding:16px 0">No behaviors pinpointed yet. Add a target behavior to begin tracking.</td></tr>';
+    return;
+  }
+  document.getElementById('chart-behavior-title').textContent = beh.name;
+  document.getElementById('chart-behavior-definition').textContent = beh.definition;
+
+  const behaviorData = data.behaviorData.filter(d => d.behaviorId === beh.id).sort((a,b) => a.date.localeCompare(b.date));
+  renderBehaviorChart('behavior-chart', behaviorData, beh);
+  renderMeasurementTable(beh, behaviorData);
+}
+
+function renderMeasurementTable(beh, dataPoints) {
+  if (dataPoints.length === 0) {
+    document.getElementById('measure-table').innerHTML = '<tr><td style="color:var(--text-muted);padding:16px 0">No data collected yet for this behavior.</td></tr>';
+    return;
+  }
+  const baseline = dataPoints.filter(d => d.phase === 'Baseline');
+  const intervention = dataPoints.filter(d => d.phase === 'Intervention');
+  const baselineAvg = baseline.length ? (baseline.reduce((s,d) => s+d.value, 0) / baseline.length).toFixed(1) : '--';
+  const interventionAvg = intervention.length ? (intervention.reduce((s,d) => s+d.value, 0) / intervention.length).toFixed(1) : '--';
+  const currentVal = dataPoints[dataPoints.length - 1].value;
+  const practitionerCount = dataPoints.filter(d => d.collector === 'Practitioner').length;
+  const clientCount = dataPoints.filter(d => d.collector === 'Client').length;
+
+  const improving = beh.direction === 'decrease'
+    ? currentVal <= (parseFloat(baselineAvg)||0)
+    : currentVal >= (parseFloat(baselineAvg)||0);
+
+  document.getElementById('measure-table').innerHTML = `
+    <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Measurement Method</td><td>${beh.method}</td></tr>
+      <tr><td>Baseline Average</td><td>${baselineAvg}</td></tr>
+      <tr><td>Intervention Average</td><td>${interventionAvg}</td></tr>
+      <tr><td>Current Level</td><td style="font-weight:600">${currentVal}</td></tr>
+      <tr><td>Target / Criterion</td><td>${beh.target}</td></tr>
+      <tr><td>Total Data Points</td><td>${dataPoints.length} <span style="color:var(--text-muted);font-size:.78rem">(${practitionerCount} practitioner, ${clientCount} client)</span></td></tr>
+      <tr><td>Trend</td><td class="${improving ? 'trend-up' : 'trend-down'}">${improving ? 'Improving' : 'Needs attention'}</td></tr>
+    </tbody>`;
+}
+
+function renderBusinessMetrics(client) {
+  const metrics = data.businessMetrics.filter(m => m.clientId === client.id).sort((a,b) => b.date.localeCompare(a.date));
+  const el = document.getElementById('business-metrics-detail');
+  if (metrics.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem">No business metrics recorded yet.</p>';
+    return;
+  }
+  el.innerHTML = `<table class="measure-table">
+    <thead><tr><th>Date</th><th>Metric</th><th>Value</th><th>Notes</th></tr></thead>
+    <tbody>${metrics.map(m => `
+      <tr>
+        <td>${formatDate(m.date)}</td>
+        <td style="font-weight:600">${m.type}</td>
+        <td>${m.value}</td>
+        <td style="font-size:.82rem;color:var(--text-secondary)">${m.notes || ''}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function toggleClientView() {
+  isClientView = !isClientView;
+  const detail = document.getElementById('view-client-detail');
+  const btn = document.getElementById('btn-client-view');
+  if (isClientView) {
+    detail.classList.add('client-view-active');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Internal View';
+  } else {
+    detail.classList.remove('client-view-active');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Client View';
+  }
+}
+
+// ============ CHARTS ============
+function renderBehaviorChart(canvasId, dataPoints, beh) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * 2;
+  canvas.height = rect.height * 2;
+  ctx.scale(2, 2);
+  const w = rect.width, h = rect.height;
+
+  ctx.clearRect(0, 0, w, h);
+
+  if (dataPoints.length === 0) {
+    ctx.fillStyle = 'rgba(27,58,75,0.3)';
+    ctx.font = '13px Outfit';
+    ctx.textAlign = 'center';
+    ctx.fillText('No data points yet. Record behavior data to see the chart.', w/2, h/2);
+    return;
+  }
+
+  const padding = {top: 24, right: 50, bottom: 34, left: 44};
+  const chartW = w - padding.left - padding.right;
+  const chartH = h - padding.top - padding.bottom;
+
+  const values = dataPoints.map(d => d.value);
+  const target = beh ? beh.target : (dataPoints[0].target || 0);
+  const maxVal = Math.max(...values, target) * 1.2 || 10;
+  const minVal = Math.min(0, ...values);
+  const range = maxVal - minVal || 1;
+
+  const getX = i => padding.left + (dataPoints.length === 1 ? chartW/2 : (i / (dataPoints.length - 1)) * chartW);
+  const getY = v => padding.top + chartH * (1 - (v - minVal) / range);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(27,58,75,0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padding.top + (chartH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(padding.left, y); ctx.lineTo(w - padding.right, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(27,58,75,0.35)';
+    ctx.font = '10px Outfit';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxVal - range * i / 4), padding.left - 8, y + 3);
+  }
+
+  // Target line
+  const targetY = getY(target);
+  ctx.strokeStyle = 'rgba(58,158,111,0.5)';
+  ctx.setLineDash([4, 4]);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(padding.left, targetY); ctx.lineTo(w - padding.right, targetY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(58,158,111,0.7)';
+  ctx.font = '10px Outfit';
+  ctx.textAlign = 'left';
+  ctx.fillText('Target: ' + target, w - padding.right + 4, targetY + 3);
+
+  // Phase boundaries — draw vertical line where phase changes
+  let lastPhase = dataPoints[0].phase;
+  const phaseBoundaries = [];
+  for (let i = 1; i < dataPoints.length; i++) {
+    if (dataPoints[i].phase !== lastPhase) {
+      phaseBoundaries.push({index: i, from: lastPhase, to: dataPoints[i].phase});
+      lastPhase = dataPoints[i].phase;
+    }
+  }
+
+  // Phase background shading
+  let prevBx = padding.left;
+  const phaseColors = {'Baseline':'rgba(61,139,139,0.04)','Intervention':'rgba(155,107,181,0.04)','Post-Intervention':'rgba(58,158,111,0.04)'};
+  const phaseLabelColors = {'Baseline':'rgba(61,139,139,0.45)','Intervention':'rgba(155,107,181,0.45)','Post-Intervention':'rgba(58,158,111,0.45)'};
+
+  phaseBoundaries.forEach(pb => {
+    const bx = (getX(pb.index - 1) + getX(pb.index)) / 2;
+    ctx.fillStyle = phaseColors[pb.from] || 'rgba(0,0,0,0.02)';
+    ctx.fillRect(prevBx, padding.top, bx - prevBx, chartH);
+
+    // Phase label
+    ctx.fillStyle = phaseLabelColors[pb.from] || 'rgba(0,0,0,0.3)';
+    ctx.font = '600 9px Outfit';
+    ctx.textAlign = 'center';
+    ctx.fillText(pb.from.toUpperCase(), prevBx + (bx - prevBx) / 2, padding.top + 12);
+
+    // Vertical divider
+    ctx.strokeStyle = 'rgba(27,58,75,0.15)';
+    ctx.setLineDash([3, 3]);
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(bx, padding.top); ctx.lineTo(bx, padding.top + chartH); ctx.stroke();
+    ctx.setLineDash([]);
+
+    prevBx = bx;
+  });
+  // Last phase
+  ctx.fillStyle = phaseColors[lastPhase] || 'rgba(0,0,0,0.02)';
+  ctx.fillRect(prevBx, padding.top, (w - padding.right) - prevBx, chartH);
+  ctx.fillStyle = phaseLabelColors[lastPhase] || 'rgba(0,0,0,0.3)';
+  ctx.font = '600 9px Outfit';
+  ctx.textAlign = 'center';
+  ctx.fillText(lastPhase.toUpperCase(), prevBx + ((w - padding.right) - prevBx) / 2, padding.top + 12);
+
+  // Data line
+  ctx.beginPath();
+  dataPoints.forEach((d, i) => {
+    const x = getX(i), y = getY(d.value);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#3D8B8B';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Data points — shape indicates collector
+  dataPoints.forEach((d, i) => {
+    const x = getX(i), y = getY(d.value);
+    const isClient = d.collector === 'Client';
+
+    if (isClient) {
+      // Square for client-collected
+      const s = 5;
+      ctx.fillStyle = d.phase === 'Baseline' ? 'rgba(91,126,196,0.5)' : '#5B7EC4';
+      ctx.fillRect(x - s, y - s, s * 2, s * 2);
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x - s, y - s, s * 2, s * 2);
+    } else {
+      // Circle for practitioner-collected
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = d.phase === 'Baseline' ? 'rgba(209,148,58,0.5)' : '#D4943A';
+      ctx.fill();
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  });
+
+  // X-axis dates
+  ctx.fillStyle = 'rgba(27,58,75,0.35)';
+  ctx.font = '9px Outfit';
+  ctx.textAlign = 'center';
+  const step = Math.max(1, Math.floor(dataPoints.length / 8));
+  for (let i = 0; i < dataPoints.length; i += step) {
+    const x = getX(i);
+    const d = new Date(dataPoints[i].date);
+    ctx.fillText(`${d.getDate()}/${d.getMonth()+1}`, x, h - 8);
+  }
+  // Always show last date
+  if (dataPoints.length > 1) {
+    const x = getX(dataPoints.length - 1);
+    const d = new Date(dataPoints[dataPoints.length-1].date);
+    ctx.fillText(`${d.getDate()}/${d.getMonth()+1}`, x, h - 8);
+  }
+}
+
+// ============ ALL BEHAVIOR DATA VIEW ============
+function renderAllBehaviorData() {
+  const container = document.getElementById('all-behavior-charts');
+  container.innerHTML = '';
+  (data.behaviors || []).forEach(beh => {
+    const c = data.clients.find(cl => cl.id === beh.clientId);
+    if (!c) return;
+    const behaviorData = data.behaviorData.filter(d => d.behaviorId === beh.id).sort((a,b) => a.date.localeCompare(b.date));
+    if (behaviorData.length === 0) return;
+    const card = document.createElement('div');
+    card.className = 'data-card';
+    card.style.cursor = 'pointer';
+    card.onclick = () => { currentBehaviorId = beh.id; openClient(c.id); };
+    card.innerHTML = `<h3>${c.name} <span style="font-weight:400;font-size:.82rem;color:var(--text-secondary)">| ${c.org}</span></h3>
+      <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:12px">${beh.name}</p>
+      <div class="chart-container"><canvas id="chart-all-${beh.id}"></canvas></div>
+      <div class="chart-legend">
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:rgba(61,139,139,0.3)"></div>Baseline</div>
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--teal)"></div>Intervention</div>
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--success)"></div>Target</div>
+      </div>`;
+    container.appendChild(card);
+    setTimeout(() => renderBehaviorChart(`chart-all-${beh.id}`, behaviorData, beh), 50);
+  });
+}
+
+// ============ ALL SESSIONS VIEW ============
+function renderAllSessions() {
+  const sorted = [...data.sessions].sort((a,b) => b.date.localeCompare(a.date));
+  document.getElementById('all-sessions-list').innerHTML = sorted.map(s => {
+    const c = data.clients.find(cl => cl.id === s.clientId);
+    return `<div class="session-entry">
+      <div class="session-date">${formatDate(s.date)} | ${c ? c.name : 'Unknown'} | ${s.duration} min | ${s.type}</div>
+      <div class="session-title">${s.behaviors}</div>
+      <div class="session-notes">${s.data}</div>
+      ${s.adjustments ? `<div class="session-notes" style="margin-top:4px"><strong>Adjustments:</strong> ${s.adjustments}</div>` : ''}
+      <div class="session-notes" style="margin-top:4px"><strong>Next:</strong> ${s.next}</div>
+      <div class="session-tags">${s.tags.map(t => `<span class="session-tag">${t}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============ MODALS ============
+function openModal(type) {
+  populateClientSelects();
+  document.getElementById('modal-' + type).classList.add('open');
+  if (type === 'add-behavior-data' || type === 'add-session' || type === 'add-business') {
+    const dateInput = document.querySelector(`#modal-${type} input[type="date"]`);
+    if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+  }
+}
+function closeModal(type) { document.getElementById('modal-' + type).classList.remove('open'); }
+
+function populateClientSelects() {
+  const options = data.clients.map(c => `<option value="${c.id}">${c.name} - ${c.org}</option>`).join('');
+  ['f-session-client','f-data-client','f-biz-client','f-beh-client'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">Select client</option>' + options;
+    if (el && currentClientId) el.value = currentClientId;
+  });
+  updateBehaviorSelect();
+}
+
+function updateBehaviorSelect() {
+  const clientId = parseInt(document.getElementById('f-data-client')?.value);
+  const select = document.getElementById('f-data-behavior-select');
+  if (!select) return;
+  const behaviors = (data.behaviors || []).filter(b => b.clientId === clientId);
+  select.innerHTML = '<option value="">Select behavior</option>' + behaviors.map(b =>
+    `<option value="${b.id}" data-method="${b.method}" data-target="${b.target}">${b.name}</option>`
+  ).join('');
+  select.onchange = function() {
+    const opt = this.options[this.selectedIndex];
+    if (opt.dataset.method) {
+      document.getElementById('f-data-method').value = opt.dataset.method;
+      document.getElementById('f-data-target').value = opt.dataset.target;
+    }
+  };
+  if (currentBehaviorId) select.value = currentBehaviorId;
+  select.dispatchEvent(new Event('change'));
+}
+
+function addClient() {
+  const client = {
+    id: Date.now(),
+    name: document.getElementById('f-client-name').value,
+    org: document.getElementById('f-client-org').value,
+    sector: document.getElementById('f-client-sector').value,
+    area: document.getElementById('f-client-area').value,
+    phase: 'scope', phaseIndex: 0,
+    startDate: document.getElementById('f-client-start').value,
+    sponsor: document.getElementById('f-client-sponsor').value,
+    concern: document.getElementById('f-client-concern').value,
+    referral: document.getElementById('f-client-referral').value,
+    targetBehavior: 'To be pinpointed during assessment',
+    abc: {a:'To be assessed',b:'To be assessed',c:'To be assessed'},
+    scopeDates: {scope: document.getElementById('f-client-start').value, pinpoint:null,assess:null,change:null,embed:null},
+    risk: 'low', progress: 5, nextSession: ''
+  };
+  if (!client.name || !client.org) return alert('Please enter client name and organization.');
+  data.clients.push(client);
+  saveData();
+  closeModal('add-client');
+  renderDashboard();
+}
+
+function addSession() {
+  const session = {
+    clientId: parseInt(document.getElementById('f-session-client').value),
+    date: document.getElementById('f-session-date').value,
+    duration: parseInt(document.getElementById('f-session-duration').value),
+    type: document.getElementById('f-session-type').value,
+    behaviors: document.getElementById('f-session-behaviors').value,
+    data: document.getElementById('f-session-data').value,
+    adjustments: document.getElementById('f-session-adjustments').value,
+    next: document.getElementById('f-session-next').value,
+    tags: [document.getElementById('f-session-type').value.toLowerCase()]
+  };
+  if (!session.clientId) return alert('Please select a client.');
+  data.sessions.push(session);
+  saveData();
+  closeModal('add-session');
+  if (currentClientId) renderClientDetail();
+}
+
+function addBehaviorDefinition() {
+  const beh = {
+    id: 'b' + Date.now(),
+    clientId: parseInt(document.getElementById('f-beh-client').value),
+    name: document.getElementById('f-beh-name').value,
+    definition: document.getElementById('f-beh-definition').value,
+    method: document.getElementById('f-beh-method').value,
+    target: parseFloat(document.getElementById('f-beh-target').value),
+    direction: document.getElementById('f-beh-direction').value
+  };
+  if (!beh.clientId || !beh.name) return alert('Please enter a client and behavior name.');
+  if (!data.behaviors) data.behaviors = [];
+  data.behaviors.push(beh);
+  currentBehaviorId = beh.id;
+  saveData();
+  closeModal('add-behavior');
+  if (currentClientId) renderClientDetail();
+}
+
+function addBehaviorData() {
+  const behaviorId = document.getElementById('f-data-behavior-select').value;
+  const entry = {
+    clientId: parseInt(document.getElementById('f-data-client').value),
+    behaviorId: behaviorId,
+    date: document.getElementById('f-data-date').value,
+    value: parseFloat(document.getElementById('f-data-value').value),
+    phase: document.getElementById('f-data-phase').value,
+    collector: document.getElementById('f-data-collector').value,
+    notes: document.getElementById('f-data-notes').value
+  };
+  if (!entry.clientId || !entry.behaviorId || isNaN(entry.value)) return alert('Please select a client, behavior, and enter a value.');
+  data.behaviorData.push(entry);
+  data.behaviorData.sort((a,b) => a.date.localeCompare(b.date));
+  saveData();
+  closeModal('add-behavior-data');
+  if (currentClientId) renderClientDetail();
+}
+
+function addBusinessMetric() {
+  const entry = {
+    clientId: parseInt(document.getElementById('f-biz-client').value),
+    date: document.getElementById('f-biz-date').value,
+    type: document.getElementById('f-biz-type').value,
+    value: parseFloat(document.getElementById('f-biz-value').value),
+    notes: document.getElementById('f-biz-notes').value
+  };
+  if (!entry.clientId) return alert('Please select a client.');
+  data.businessMetrics.push(entry);
+  saveData();
+  closeModal('add-business');
+}
+
+function generateReport(type) {
+  alert(`Report generation for "${type}" would export a formatted document with behavior data graphs, session summaries, and business metrics. This feature connects to the Alkalma reporting templates.`);
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `alkalma-obm-data-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+}
+
+// ============ UTILS ============
+function formatDate(dateStr) {
+  if (!dateStr) return '--';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+}
+
+// ============ INIT ============
+renderDashboard();
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
